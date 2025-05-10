@@ -20,10 +20,10 @@
 <body>
 
   <!-- 보기 (대부분 브라우저는 다운로드만 시도함) -->
-  <a href="videos/movie.mkv" class="btn" target="_blank">MKV 파일 보기</a>
+  <a href="./주의사항.mp4" class="btn" target="_blank">파일 보기</a>
 
   <!-- 다운로드 -->
-  <a href="videos/movie.mkv" class="btn" download>MKV 파일 다운로드</a>
+  <a href="./주의사항.mp4" class="btn" download>MKV 파일 다운로드</a>
 
 </body>
 </html>
