@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>MKV 파일 다운로드 및 보기</title>
+  <style>
+    .btn {
+      display: inline-block;
+      margin: 10px;
+      padding: 10px 20px;
+      background-color: #007BFF;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+    .btn:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 보기 (대부분 브라우저는 다운로드만 시도함) -->
+  <a href="videos/movie.mkv" class="btn" target="_blank">MKV 파일 보기</a>
+
+  <!-- 다운로드 -->
+  <a href="videos/movie.mkv" class="btn" download>MKV 파일 다운로드</a>
+
+</body>
+</html>
