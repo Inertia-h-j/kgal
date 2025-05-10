@@ -2,42 +2,31 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>영상과 다운로드</title>
+  <title>고정 영상 + 자막 ZIP 다운로드</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <style>
     body {
-      margin: 0;
-      padding: 0;
-      background-color: #f0f0f0;
+      font-family: sans-serif;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
-      height: 100vh;
-    }
-
-    .video-container {
-      max-width: 90%;
-      max-height: 90%;
+      margin-top: 50px;
     }
 
     video {
-      width: 100%;
-      height: auto;
+      max-width: 80%;
+      margin-bottom: 20px;
     }
 
     .download-button {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
       background-color: #007bff;
       color: white;
-      padding: 12px 18px;
+      padding: 10px 20px;
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      text-decoration: none;
+      font-size: 16px;
       font-weight: bold;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      z-index: 1000;
     }
 
     .download-button:hover {
@@ -46,14 +35,96 @@
   </style>
 </head>
 <body>
-  <div class="video-container">
-    <video controls>
-      <source src="./주의사항.mp4" type="video/mp4">
-      브라우저가 video 태그를 지원하지 않습니다.
-    </video>
-  </div>
 
-  <!-- 화면 오른쪽 아래 고정 다운로드 버튼 -->
-  <a href="./주의사항.mp4" download class="download-button">다운로드</a>
+  <h2>갤드 테스트</h2>
+  <video id="videoPlayer" controls></video>
+
+  <button class="download-button" onclick="downloadZip()">ZIP으로 다운로드</button>
+
+  <script>
+    let videoBlob, subtitleBlob;
+    const videoPath = './주의사항.mp4';
+    const subtitlePath = './주의사항.srt'; // .smi 도 가능
+
+    // 페이지 로드 시 영상과 자막 자동 불러오기
+    window.onload = async () => {
+      await fetchVideo();
+      await fetchSubtitle();
+    };
+
+    async function fetchVideo() {
+      const response = await fetch(videoPath);
+      const blob = await response.blob();
+      videoBlob = new File([blob], 'sample.mp4', { type: 'video/mp4' });
+
+      const url = URL.createObjectURL(videoBlob);
+      document.getElementById('videoPlayer').src = url;
+    }
+
+    async function fetchSubtitle() {
+      const response = await fetch(subtitlePath);
+      const text = await response.text();
+      const ext = subtitlePath.split('.').pop().toLowerCase();
+
+      if (ext === 'srt') {
+        subtitleBlob = new Blob([convertSRTtoVTT(text)], { type: 'text/vtt' });
+      } else if (ext === 'smi') {
+        subtitleBlob = new Blob([convertSMItoVTT(text)], { type: 'text/vtt' });
+      }
+    }
+
+    function convertSRTtoVTT(srt) {
+      return 'WEBVTT\n\n' + srt
+        .replace(/\r/g, '')
+        .replace(/(\d+)\n(\d{2}:\d{2}:\d{2}),(\d{3}) --> (\d{2}:\d{2}:\d{2}),(\d{3})/g,
+                 '\n$2.$3 --> $4.$5');
+    }
+
+    function convertSMItoVTT(smi) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(smi, 'text/html');
+      const syncs = doc.querySelectorAll('sync');
+      let vtt = 'WEBVTT\n\n';
+
+      syncs.forEach((sync, i) => {
+        const start = parseInt(sync.getAttribute('start'), 10);
+        const end = syncs[i + 1] ? parseInt(syncs[i + 1].getAttribute('start'), 10) : start + 2000;
+        const text = sync.textContent.trim().replace(/\s+/g, ' ');
+        const startTime = msToVttTime(start);
+        const endTime = msToVttTime(end);
+        if (text) {
+          vtt += `${startTime} --> ${endTime}\n${text}\n\n`;
+        }
+      });
+
+      return vtt;
+    }
+
+    function msToVttTime(ms) {
+      const date = new Date(ms);
+      const hours = String(date.getUTCHours()).padStart(2, '0');
+      const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+      const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+      const milliseconds = String(ms % 1000).padStart(3, '0');
+      return `${hours}:${minutes}:${seconds}.${milliseconds}`;
+    }
+
+    async function downloadZip() {
+      if (!videoBlob || !subtitleBlob) {
+        alert('영상 또는 자막을 불러오지 못했습니다.');
+        return;
+      }
+
+      const zip = new JSZip();
+      zip.file(./주의사항.mp4', videoBlob);
+      zip.file('./주의사항.vtt', subtitleBlob);
+
+      const content = await zip.generateAsync({ type: 'blob' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(content);
+      link.download = 'video_with_subtitles.zip';
+      link.click();
+    }
+  </script>
 </body>
 </html>
