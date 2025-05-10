@@ -116,7 +116,7 @@
       }
 
       const zip = new JSZip();
-      zip.file(./주의사항.mp4', videoBlob);
+      zip.file('./주의사항.mp4', videoBlob);
       zip.file('./주의사항.vtt', subtitleBlob);
 
       const content = await zip.generateAsync({ type: 'blob' });
