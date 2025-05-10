@@ -6,29 +6,38 @@
   <style>
     body {
       margin: 0;
+      padding: 0;
+      background-color: #f0f0f0;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      background-color: #f0f0f0;
     }
 
     .video-container {
-      position: relative;
+      max-width: 90%;
+      max-height: 90%;
+    }
+
+    video {
+      width: 100%;
+      height: auto;
     }
 
     .download-button {
-      position: absolute;
-      bottom: 10px;
-      right: 10px;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
       background-color: #007bff;
       color: white;
-      padding: 10px 15px;
+      padding: 12px 18px;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
       cursor: pointer;
       text-decoration: none;
       font-weight: bold;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      z-index: 1000;
     }
 
     .download-button:hover {
@@ -38,13 +47,13 @@
 </head>
 <body>
   <div class="video-container">
-    <video width="640" height="360" controls>
-      <source src="./주의사항.mp4" type="video/mp4">
+    <video controls>
+      <source src="sample.mp4" type="video/mp4">
       브라우저가 video 태그를 지원하지 않습니다.
     </video>
-
-    <!-- 다운로드 버튼 -->
-    <a href="./주의사항.mp4" download class="download-button">다운로드</a>
   </div>
+
+  <!-- 화면 오른쪽 아래 고정 다운로드 버튼 -->
+  <a href="sample.mp4" download class="download-button">다운로드</a>
 </body>
 </html>
